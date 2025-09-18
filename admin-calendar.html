@@ -63,6 +63,7 @@ function buildCalendar(year, month){
   calendar.innerHTML='';
   document.getElementById('monthLabel').textContent=`${year} 年 ${month+1} 月`;
 
+  // 先建立星期標題
   weekDays.forEach(d=>{
     const cell=document.createElement('div');
     cell.classList.add('week-cell');
@@ -75,6 +76,7 @@ function buildCalendar(year, month){
   const startWeek=firstDay.getDay();
   const totalDays=lastDay.getDate();
 
+  // 空白格補齊
   for(let i=0;i<startWeek;i++){
     const cell=document.createElement('div');
     cell.classList.add('calendar-cell');
@@ -82,21 +84,20 @@ function buildCalendar(year, month){
     calendar.appendChild(cell);
   }
 
+  // 每天格子
   for(let d=1; d<=totalDays; d++){
     const dayStr=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const cell=document.createElement('div');
     cell.classList.add('calendar-cell');
     cell.textContent=d;
 
+    // 顯示預約數量與 VIP 標記
     if(appointments[dayStr] && appointments[dayStr].length>0){
       const label = document.createElement('div');
       label.classList.add('label');
       let count = appointments[dayStr].length;
-
-      // 修正 VIP 判斷
       const hasVIP = appointments[dayStr].some(a => vipList.some(v => v.phone === a.phone));
-      label.textContent = hasVIP ? `★${count}` : count;
-
+      label.textContent = hasVIP ? `★${count}` : `${count}`;
       cell.appendChild(label);
     }
 
@@ -105,11 +106,11 @@ function buildCalendar(year, month){
   }
 }
 
+// 點選每天管理預約
 function manageDay(dayStr){
   const dayAppointments = appointments[dayStr] || [];
   let msg = `📅 ${dayStr} 的預約:\n\n`;
   dayAppointments.forEach((a,i)=>{
-    // 修正 VIP 判斷
     let star = vipList.some(v => v.phone === a.phone) ? ' ★VIP' : '';
     msg+=`${i+1}. ${a.time} - ${a.name} (${a.phone})${star}\n 服務: ${a.service}\n`;
   });
@@ -140,6 +141,7 @@ function manageDay(dayStr){
   }
 }
 
+// 月份切換
 document.getElementById('prevMonth').addEventListener('click', ()=>{
   currentMonth--; if(currentMonth<0){ currentMonth=11; currentYear--; }
   buildCalendar(currentYear,currentMonth);
@@ -148,6 +150,8 @@ document.getElementById('nextMonth').addEventListener('click', ()=>{
   currentMonth++; if(currentMonth>11){ currentMonth=0; currentYear++; }
   buildCalendar(currentYear,currentMonth);
 });
+
+// 匯出 / 匯入 / 重新整理
 document.getElementById('exportBtn').addEventListener('click', ()=>{
   const dataStr = "data:text/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(appointments,null,2));
   const dlAnchor = document.createElement('a');
@@ -178,6 +182,7 @@ document.getElementById('refreshBtn').addEventListener('click', ()=>{
   buildCalendar(currentYear,currentMonth);
 });
 
+// 密碼驗證
 if(!localStorage.getItem(STORAGE_KEY_AUTH)){
   const password = prompt('請輸入管理密碼');
   if(password==='salon2025'){
