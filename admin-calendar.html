@@ -28,7 +28,7 @@ button:hover { background:#5bb174; }
 <nav>
 <ul>
 <li><a href="vip.html">VIP 管理</a></li>
-<li><a href="calendar.html" class="active">行事曆管理</a></li>
+<li><a href="admin-calendar.html" class="active">行事曆管理</a></li>
 </ul>
 </nav>
 </header>
@@ -93,8 +93,8 @@ function buildCalendar(year, month){
       label.classList.add('label');
       let count = appointments[dayStr].length;
 
-      // 判斷是否有 VIP 預約
-      const hasVIP = appointments[dayStr].some(a => vipList.includes(a.phone));
+      // 修正 VIP 判斷
+      const hasVIP = appointments[dayStr].some(a => vipList.some(v => v.phone === a.phone));
       label.textContent = hasVIP ? `★${count}` : count;
 
       cell.appendChild(label);
@@ -109,7 +109,8 @@ function manageDay(dayStr){
   const dayAppointments = appointments[dayStr] || [];
   let msg = `📅 ${dayStr} 的預約:\n\n`;
   dayAppointments.forEach((a,i)=>{
-    let star = vipList.includes(a.phone) ? ' ★VIP' : '';
+    // 修正 VIP 判斷
+    let star = vipList.some(v => v.phone === a.phone) ? ' ★VIP' : '';
     msg+=`${i+1}. ${a.time} - ${a.name} (${a.phone})${star}\n 服務: ${a.service}\n`;
   });
   msg+='\n輸入:\n1 = 新增預約\n2 = 刪除預約\n取消 = 離開';
